@@ -1,0 +1,24 @@
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Elden Ring",
+  "description": "Un action-RPG exigeant",
+  "price": 59.99,
+  "userId": "lucie_id_123"
+}
+
+### Récupérer tous les produits
+# @no-cookie-jar
+GET http://localhost:8080/products
+
+### Créer un utilisateur
+# @no-cookie-jar
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "lucie_dev",
+  "email": "lucie@test.com",
+  "password": "monSuperMotDePasse"
+}
