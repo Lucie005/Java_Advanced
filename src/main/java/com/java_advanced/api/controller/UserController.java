@@ -24,4 +24,11 @@ public class UserController {
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
+
+    // Route pour se connecter
+    @PostMapping("/login")
+    public String login(@RequestBody User loginData) {
+        // On utilise la méthode login qu'on a créé dans le service
+        return userService.login(loginData.getEmail(), loginData.getPassword());
+    }
 }
