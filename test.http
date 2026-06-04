@@ -90,3 +90,9 @@ Content-Type: application/json
   "name": "Test Erreur 404",
   "price": 10.0
 }
+
+### Test CORS (Simulation d'un navigateur React sur le port 3000)
+# @no-cookie-jar
+OPTIONS http://localhost:8080/products
+Origin: http://localhost:3000
+Access-Control-Request-Method: GET

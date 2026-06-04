@@ -9,12 +9,17 @@ Ce projet permet la gestion d'un catalogue de jeux vidéo, intégrant un systèm
 * **Sécurité :** Spring Security & JSON Web Tokens (JWT), BCrypt
 * **Base de données :** MongoDB Atlas (Cloud)
 * **Outils de développement :** IntelliJ IDEA, HTTP Client
+* **Protection (Rate Limiting) :** Bucket4j
 
 ## ✨ Fonctionnalités Principales
 * **Authentification sécurisée :** Inscription, connexion et génération de tokens JWT.
 * **Gestion des rôles :** Séparation des accès (lecture publique pour tous, modifications réservées aux administrateurs).
 * **CRUD Produits :** Création, lecture, modification et suppression de jeux vidéo.
 * **Gestion globale des erreurs :** Interception centralisée des exceptions (`@RestControllerAdvice`) pour garantir des réponses JSON propres (401, 403, 404, 500) au lieu des traces de crash serveur.
+
+## 🌟 Fonctionnalités Avancées 
+* **Configuration CORS :** L'API est configurée pour accepter de manière sécurisée les requêtes provenant d'un futur client front-end (ex: application React/Vue sur `http://localhost:3000`).
+* **Rate Limiting :** Un filtre anti-spam et anti-brute-force a été implémenté via Bucket4j. L'API limite automatiquement le trafic (ex: 10 requêtes par minute) et renvoie un code `429 Too Many Requests` en cas d'abus.
 
 ## 🚀 Configuration et Lancement (Prérequis pour l'évaluation)
 
