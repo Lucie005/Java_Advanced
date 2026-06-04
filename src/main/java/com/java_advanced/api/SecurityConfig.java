@@ -1,9 +1,10 @@
 package com.java_advanced.api;
 
-import com.java_advanced.api.security.JwtFilter; // Import du filtre
+import com.java_advanced.api.security.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,17 +17,25 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Autowired
-    private JwtFilter jwtFilter; // On injecte notre filtre sécurité
+    private JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/**").permitAll() // Autorise l'inscription et le login à tout le monde
-                        .anyRequest().authenticated() // EXIGE un token valide pour tout le reste (dont /products)
+                        // On autorise Spring à nous afficher les vraies erreurs
+                        .requestMatchers("/error").permitAll()
+
+                        // On ouvre explicitement le login et l'inscription
+                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+
+                        // Le reste des règles
+                        .requestMatchers(HttpMethod.GET, "/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ROLE_ADMIN")
+                        .anyRequest().authenticated()
                 )
-                // On place notre filtre juste avant celui de Spring par défaut
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

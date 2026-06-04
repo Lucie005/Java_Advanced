@@ -7,12 +7,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -24,26 +25,26 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // On cherche l'en-tête "Authorization" dans la requête
         String authHeader = request.getHeader("Authorization");
 
-        // Si on trouve un token qui commence par "Bearer " (le format standard)
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7); // On enlève le mot "Bearer " pour garder juste le code
+            String token = authHeader.substring(7);
             try {
-                // On extrait l'email
                 String email = jwtService.extractEmail(token);
+                String role = jwtService.extractRole(token); // lit le rôle
 
-                // Si le token est valide, on donne l'accès officiel à Spring Security
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
+                    // traduit le rôle pour que Spring Security le comprenne
+                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            email, null, Collections.singletonList(authority));
+
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             } catch (Exception e) {
-                // Si le token est faux ou expiré, on ne fait rien, l'accès sera refusé
+                // Token invalide, on laisse passer sans authentifier (le routeur bloquera)
             }
         }
-        // On laisse la requête continuer son chemin
         filterChain.doFilter(request, response);
     }
 }

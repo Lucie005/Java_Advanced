@@ -1,36 +1,92 @@
-POST http://localhost:8080/products
-Content-Type: application/json
+### ==========================================
+### SCÉNARIO DE SOUTENANCE - LET'S PLAY API
+### ==========================================
 
-{
-  "name": "Elden Ring",
-  "description": "Un action-RPG exigeant",
-  "price": 59.99,
-  "userId": "lucie_id_123"
-}
-
-### Récupérer tous les produits
-# @no-cookie-jar
-GET http://localhost:8080/products
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsdWNpZS5zZWN1QHRlc3QuY29tIiwiaWF0IjoxNzgwNTAzMjAxLCJleHAiOjE3ODA1ODk2MDF9.R1b3VK2EI_1f013OjrP-mO8RnwR55XCa3jEndk6KssI
-
-
-### Créer un utilisateur sécurisé
+### 1. Création du compte Boss (Admin)
 # @no-cookie-jar
 POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-  "name": "lucie_securisee",
-  "email": "lucie.secu@test.com",
-  "password": "monSuperMotDePasse"
+  "name": "Lucie Admin",
+  "email": "admin@letsplay.com",
+  "password": "bossPassword",
+  "role": "ROLE_ADMIN"
 }
 
-### Se connecter et recevoir un Token
+### 2. Connexion de l'Admin (Authentification)
+# /!\ ACTION REQUISE : Copier le Token reçu dans la réponse !
 # @no-cookie-jar
 POST http://localhost:8080/users/login
 Content-Type: application/json
 
 {
-  "email": "lucie.secu@test.com",
-  "password": "monSuperMotDePasse"
+  "email": "admin@letsplay.com",
+  "password": "bossPassword"
+}
+
+### ==========================================
+
+### 3. Consulter le catalogue (Route Publique)
+# @no-cookie-jar
+GET http://localhost:8080/products
+
+### 4. Ajouter un nouveau jeu (Route Protégée Admin)
+# /!\ ACTION REQUISE : Remplacer <TOKEN_ADMIN> par le vrai token
+# /!\ ACTION REQUISE : Copier l'ID du produit créé dans la réponse
+# @no-cookie-jar
+POST http://localhost:8080/products
+Authorization: Bearer <TOKEN_ADMIN>
+Content-Type: application/json
+
+{
+  "name": "Red Dead Redemption 2",
+  "description": "Le chef-d'oeuvre de Rockstar en monde ouvert.",
+  "price": 59.99,
+  "userId": "lucie_id_123"
+}
+
+### 5. Modifier le jeu (Route Protégée Admin)
+# /!\ ACTION REQUISE : Remplacer <ID_PRODUIT> et <TOKEN_ADMIN>
+# @no-cookie-jar
+PUT http://localhost:8080/products/<ID_PRODUIT>
+Authorization: Bearer <TOKEN_ADMIN>
+Content-Type: application/json
+
+{
+  "name": "Red Dead Redemption 2 - Ultimate Edition",
+  "description": "Édition complète avec tous les bonus du mode histoire.",
+  "price": 89.99,
+  "userId": "lucie_id_123"
+}
+
+### 6. Supprimer le jeu (Route Protégée Admin)
+# /!\ ACTION REQUISE : Remplacer <ID_PRODUIT> et <TOKEN_ADMIN>
+# @no-cookie-jar
+DELETE http://localhost:8080/products/<ID_PRODUIT>
+Authorization: Bearer <TOKEN_ADMIN>
+
+### ==========================================
+
+### 7. DEMO GESTION DES ERREURS (Le Filet de Sécurité)
+### Test A : Mauvais mot de passe (Doit renvoyer 401 Unauthorized)
+# @no-cookie-jar
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "email": "admin@letsplay.com",
+  "password": "mauvais_mot_de_passe_volontaire"
+}
+
+### Test B : Produit inexistant (Doit renvoyer 404 Not Found)
+# /!\ ACTION REQUISE : Laisser la fausse ID, mais mettre un <TOKEN_ADMIN> valide
+# @no-cookie-jar
+PUT http://localhost:8080/products/fausse_id_12345
+Authorization: Bearer <TOKEN_ADMIN>
+Content-Type: application/json
+
+{
+  "name": "Test Erreur 404",
+  "price": 10.0
 }

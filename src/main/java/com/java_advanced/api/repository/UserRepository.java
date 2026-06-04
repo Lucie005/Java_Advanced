@@ -7,6 +7,6 @@ import java.util.Optional; // Ne pas oublier cet import
 
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
-    // Cette ligne  demande à Spring de générer tout seul la requête MongoDB
+    // Cette ligne demande à Spring de générer tout seul la requête MongoDB
     Optional<User> findByEmail(String email);
 }

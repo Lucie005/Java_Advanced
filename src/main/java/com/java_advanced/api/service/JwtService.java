@@ -11,29 +11,26 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    // On génère une clé secrète ultra-sécurisée
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-
-    // Le token sera valide pendant 24 heures (en millisecondes)
     private static final long EXPIRATION_TIME = 86400000;
 
-    // La méthode qui fabrique le JWT
-    public String generateToken(String email) {
+    // On demande maintenant le rôle en plus de l'email
+    public String generateToken(String email, String role) {
         return Jwts.builder()
-                .setSubject(email) // On met l'email au centre du badge
-                .setIssuedAt(new Date()) // Date de création
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // Date d'expiration
-                .signWith(SECRET_KEY) // On signe avec notre tampon secret
-                .compact(); // On assemble le tout en une chaîne de texte
+                .claim("role", role)
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(SECRET_KEY)
+                .compact();
     }
 
-    // La méthode pour lire le token et y récupérer l'email
     public String extractEmail(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        return Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token).getBody().getSubject();
+    }
+
+    // méthode pour lire le rôle caché dans le token
+    public String extractRole(String token) {
+        return Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token).getBody().get("role", String.class);
     }
 }

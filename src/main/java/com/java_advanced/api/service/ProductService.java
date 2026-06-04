@@ -21,4 +21,22 @@ public class ProductService {
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
+
+    // Modifier un produit existant (PUT)
+    public Product updateProduct(String id, Product productDetails) {
+        return productRepository.findById(id).map(existingProduct -> {
+            existingProduct.setName(productDetails.getName());
+            existingProduct.setDescription(productDetails.getDescription());
+            existingProduct.setPrice(productDetails.getPrice());
+            return productRepository.save(existingProduct);
+        }).orElseThrow(() -> new RuntimeException("Produit introuvable avec l'ID : " + id));
+    }
+
+    // Supprimer un produit (DELETE)
+    public void deleteProduct(String id) {
+        if (!productRepository.existsById(id)) {
+            throw new RuntimeException("Produit introuvable avec l'ID : " + id);
+        }
+        productRepository.deleteById(id);
+    }
 }
